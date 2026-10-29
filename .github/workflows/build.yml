@@ -57,10 +57,10 @@ jobs:
           mkdir -p ~/.gradle
           cat > ~/.gradle/gradle.properties << EOF
           gpr.user=${{ github.actor }}
-          gpr.key=${{ secrets.GITHUB_TOKEN }}
+          gpr.key=${{ secrets.GH_TOKEN }}
           EOF
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Build Patch Bundle
         run: ./gradlew :patches:assembleRelease --no-daemon
