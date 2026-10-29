@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Gradle wrapper script
 DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
