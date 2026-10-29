@@ -10,11 +10,28 @@ repositories {
     google()
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
+    maven {
+        url = uri("https://maven.pkg.github.com/MorpheApp/morphe-patcher")
+        credentials {
+            username = System.getenv("GPR_USER") ?: project.findProperty("gpr.user") ?: ""
+            password = System.getenv("GPR_KEY") ?: project.findProperty("gpr.key") ?: ""
+        }
+    }
 }
 
 dependencies {
-    // Kotlin stdlib only - extension classes don't need smali/dexlib2 at build time
+    // Morphe patcher API (from private registry)
+    implementation 'app.morphe:patcher-api:2.0.0'
+    
+    // For fingerprint/bytecode manipulation
+    implementation 'com.android.tools:smali:3.0.9'
+    implementation 'com.android.tools:dexlib2:3.0.9'
+    
+    // Kotlin stdlib
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    
+    // For resource patches
+    implementation 'app.morphe:arsclib:1.0.0'
 }
 
 // Shadow plugin to create the .mpp bundle

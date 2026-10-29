@@ -52,6 +52,16 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Configure GitHub Packages Auth
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties << EOF
+          gpr.user=${{ github.actor }}
+          gpr.key=${{ secrets.GITHUB_TOKEN }}
+          EOF
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build Patch Bundle
         run: ./gradlew :patches:assembleRelease --no-daemon
 
