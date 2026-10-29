@@ -1,0 +1,62 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.github.johnrengelman.shadow'
+}
+
+group = 'app.morphe.patches.jiosaavn'
+version = '1.0.0'
+
+repositories {
+    google()
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+}
+
+dependencies {
+    // Kotlin stdlib only - extension classes don't need smali/dexlib2 at build time
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+}
+
+// Shadow plugin to create the .mpp bundle
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) { shadowJar ->
+    archiveClassifier = ''
+    archiveVersion = ''
+    manifest {
+        attributes(
+            'Patcher-Version': '2.0',
+            'Bundle-Name': 'JioSaavn Patches',
+            'Bundle-Version': '1.0.0',
+            'Bundle-Uid': '1001'
+        )
+    }
+    mergeServiceFiles()
+}
+
+// Task to build the .mpp file
+task buildMpp(type: Copy) {
+    dependsOn tasks.matching { it.name == 'shadowJar' }
+    from layout.buildDirectory.dir('libs')
+    into layout.buildDirectory.dir('mpp')
+    include '*.jar'
+    rename { it.replace('.jar', '.mpp') }
+}
+
+tasks.named('assemble') {
+    dependsOn buildMpp
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = '17'
+        freeCompilerArgs = [
+            '-Xopt-in=kotlin.RequiresOptIn',
+            '-Xjvm-default=all'
+        ]
+    }
+}

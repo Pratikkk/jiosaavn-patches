@@ -1,0 +1,81 @@
+plugins {
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+    id("com.github.johnrengelman.shadow")
+}
+
+android {
+    namespace = "app.morphe.patches.jiosaavn"
+    compileSdk = 34
+
+    defaultConfig {
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+        freeCompilerArgs += listOf(
+            "-Xopt-in=kotlin.RequiresOptIn",
+            "-Xjvm-default=all"
+        )
+    }
+
+    // Package the extension classes as DEX in resources
+    sourceSets {
+        main {
+            java.setSrcDirs(listOf("src/main/kotlin"))
+            resources.setSrcDirs(listOf("src/main/resources", "src/main/dex"))
+        }
+    }
+}
+
+dependencies {
+    // Morphe patcher API (published to GitHub Packages or JitPack)
+    implementation("app.morphe:patcher-api:2.0.0")
+    
+    // For fingerprint/bytecode manipulation
+    implementation("com.android.tools:smali:3.0.9")
+    implementation("com.android.tools:dexlib2:3.0.9")
+    
+    // Kotlin stdlib
+    implementation(kotlin("stdlib-jdk8"))
+    
+    // For resource patches
+    implementation("app.morphe:arsclib:1.0.0")
+}
+
+// Shadow plugin to create the .mpp bundle
+tasks.shadowJar {
+    archiveClassifier.set("")
+    archiveVersion.set("")
+    manifest {
+        attributes(
+            "Patcher-Version" to "2.0",
+            "Bundle-Name" to "JioSaavn Patches",
+            "Bundle-Version" to "1.0.0",
+            "Bundle-Uid" to "1001"
+        )
+    }
+    mergeServiceFiles()
+}
+
+// Task to build the .mpp file
+tasks.register("buildMpp", Copy::class) {
+    dependsOn("shadowJar")
+    from(layout.buildDirectory.dir("libs"))
+    into(layout.buildDirectory.dir("mpp"))
+    include("*.jar")
+    rename { it.replace(".jar", ".mpp") }
+}
+
+tasks.named("assemble") {
+    dependsOn("buildMpp")
+}

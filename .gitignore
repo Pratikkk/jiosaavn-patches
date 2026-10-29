@@ -1,0 +1,36 @@
+# Gradle
+.gradle/
+build/
+*/build/
+!*/src/main/build/
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+*.sublime-workspace
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+*.apk
+*.aab
+*.mpp
+*.dex
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Local configuration
+local.properties
+gradle.properties.local
+
+# Logs
+*.log
+
+# Temporary
+*.tmp
+*.temp
